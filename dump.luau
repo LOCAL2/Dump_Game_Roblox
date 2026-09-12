@@ -766,7 +766,8 @@ SaveManager:SetFolder("TNKDumper/configs")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
+Fluent:SetTheme("Darker")
+
 Window:SelectTab(1)
 
 SaveManager:LoadAutoloadConfig()
-
