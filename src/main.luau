@@ -526,97 +526,96 @@ function Saves:Build()
     return Cached.Builder
 end
 
--- Rayfield UI Integration
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Fluent UI Integration
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local Window = Rayfield:CreateWindow({
-   Name = "Xynapse Dumper",
-   LoadingTitle = "Xynapse Game Dumper",
-   LoadingSubtitle = "by Roblox Dumper",
-   ConfigurationSaving = {
-      Enabled = false,
-      FolderName = nil,
-      FileName = "XynapseConfig"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink",
-      RememberJoins = true
-   },
-   KeySystem = false
+local Window = Fluent:CreateWindow({
+    Title = "Xynapse Game Dumper",
+    SubTitle = "by Roblox Dumper",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 400),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458) -- Title, ImageId
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "box" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
 local CustomFolderName = ""
 
-local FolderInput = MainTab:CreateInput({
-   Name = "Custom Folder Name (Optional)",
-   PlaceholderText = "Leave empty for auto-generated GUID",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      CustomFolderName = Text
-   end,
+Tabs.Main:AddInput("FolderNameInput", {
+    Title = "Custom Folder Name",
+    Default = "",
+    Placeholder = "Leave empty for auto-generated GUID",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        CustomFolderName = Value
+    end
 })
 
-local DumpButton = MainTab:CreateButton({
-   Name = "Start Game Dump",
-   Callback = function()
-      Rayfield:Notify({
-         Title = "Dump Started",
-         Content = "Dumping scripts and explorer tree...",
-         Duration = 4,
-         Image = 4483362458,
-      })
+Tabs.Main:AddButton({
+    Title = "Start Full Game Dump",
+    Description = "Dumps all scripts and saves Explorer tree structure",
+    Callback = function()
+        Fluent:Notify({
+            Title = "Dump Started",
+            Content = "Dumping scripts and explorer tree...",
+            Duration = 4
+        })
 
-      if CustomFolderName ~= "" then
-         FolderName = Saves:SanitizeName(CustomFolderName)
-      else
-         FolderName = "Dump-" .. HttpService:GenerateGUID( false )
-      end
+        if CustomFolderName ~= "" then
+            FolderName = Saves:SanitizeName(CustomFolderName)
+        else
+            FolderName = "Dump-" .. HttpService:GenerateGUID(false)
+        end
 
-      task.spawn(function()
-         local Success, Result = pcall(function()
-            return Saves:Build()
-         end)
+        task.spawn(function()
+            local Success, Result = pcall(function()
+                return Saves:Build()
+            end)
 
-         if Success then
-            Rayfield:Notify({
-               Title = "Dump Completed!",
-               Content = "Folder: " .. FolderName .. "\nScripts: " .. tostring(#Result.Scripts),
-               Duration = 6,
-               Image = 4483362458,
-            })
-         else
-            Rayfield:Notify({
-               Title = "Dump Failed",
-               Content = tostring(Result),
-               Duration = 6,
-               Image = 4483362458,
-            })
-         end
-      end)
-   end,
+            if Success then
+                Fluent:Notify({
+                    Title = "Dump Completed!",
+                    Content = "Folder: " .. FolderName .. "\nScripts: " .. tostring(#Result.Scripts),
+                    Duration = 6
+                })
+            else
+                Fluent:Notify({
+                    Title = "Dump Failed",
+                    Content = tostring(Result),
+                    Duration = 6
+                })
+            end
+        end)
+    end
 })
 
-local ExplorerOnlyButton = MainTab:CreateButton({
-   Name = "Dump Explorer Tree Only",
-   Callback = function()
-      if CustomFolderName ~= "" then
-         FolderName = Saves:SanitizeName(CustomFolderName)
-      else
-         FolderName = "Dump-" .. HttpService:GenerateGUID( false )
-      end
+Tabs.Main:AddButton({
+    Title = "Dump Explorer Tree Only",
+    Description = "Saves Explorer.txt structure without decompiling scripts",
+    Callback = function()
+        if CustomFolderName ~= "" then
+            FolderName = Saves:SanitizeName(CustomFolderName)
+        else
+            FolderName = "Dump-" .. HttpService:GenerateGUID(false)
+        end
 
-      Saves:CreateFolder( FolderName )
-      Saves:SaveExplorer()
+        Saves:CreateFolder(FolderName)
+        Saves:SaveExplorer()
 
-      Rayfield:Notify({
-         Title = "Explorer Saved",
-         Content = "Saved to " .. FolderName .. "\\Explorer.txt",
-         Duration = 5,
-         Image = 4483362458,
-      })
-   end,
+        Fluent:Notify({
+            Title = "Explorer Saved",
+            Content = "Saved to " .. FolderName .. "\\Explorer.txt",
+            Duration = 5
+        })
+    end
 })
+
+Window:SelectTab(1)
+
 

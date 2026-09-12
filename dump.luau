@@ -655,32 +655,98 @@ function Saves:Build()
     return Cached.Builder
 end
 
-local Builder = Saves:Build()
+-- Fluent UI Integration
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-print(
-    "Folder:",
-    FolderName
-)
+local Window = Fluent:CreateWindow({
+    Title = "Xynapse Game Dumper",
+    SubTitle = "by Roblox Dumper",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 420),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl
+})
 
-print(
-    "Source:",
-    SourceFolder
-)
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "box" }),
+}
 
-print(
-    "GameSource:",
-    GameSourceFolder
-)
+local CustomFolderName = ""
 
-print(
-    "Scripts:",
-    #Builder.Scripts
-)
+Tabs.Main:AddInput("FolderNameInput", {
+    Title = "Custom Folder Name",
+    Default = "",
+    Placeholder = "Leave empty for auto-generated GUID",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        CustomFolderName = Value
+    end
+})
 
-print(
-    "Explorer: Saved"
-)
+Tabs.Main:AddButton({
+    Title = "Start Full Game Dump",
+    Description = "Dumps scripts to Source & GameSource folders + Explorer tree",
+    Callback = function()
+        Fluent:Notify({
+            Title = "Dump Started",
+            Content = "Dumping scripts and creating AGENT.md...",
+            Duration = 4
+        })
 
-print(
-    "AGENT.md: Saved"
-)
+        if CustomFolderName ~= "" then
+            FolderName = Saves:SanitizeName(CustomFolderName)
+            SourceFolder = FolderName .. "\\Source"
+            GameSourceFolder = FolderName .. "\\GameSource"
+        else
+            FolderName = "Dump-" .. HttpService:GenerateGUID(false)
+            SourceFolder = FolderName .. "\\Source"
+            GameSourceFolder = FolderName .. "\\GameSource"
+        end
+
+        task.spawn(function()
+            local Success, Result = pcall(function()
+                return Saves:Build()
+            end)
+
+            if Success then
+                Fluent:Notify({
+                    Title = "Dump Completed!",
+                    Content = "Folder: " .. FolderName .. "\nScripts: " .. tostring(#Result.Scripts),
+                    Duration = 6
+                })
+            else
+                Fluent:Notify({
+                    Title = "Dump Failed",
+                    Content = tostring(Result),
+                    Duration = 6
+                })
+            end
+        end)
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "Dump Explorer Tree Only",
+    Description = "Saves Explorer.txt & AGENT.md without decompiling scripts",
+    Callback = function()
+        if CustomFolderName ~= "" then
+            FolderName = Saves:SanitizeName(CustomFolderName)
+        else
+            FolderName = "Dump-" .. HttpService:GenerateGUID(false)
+        end
+
+        Saves:CreateFolder(FolderName)
+        Saves:SaveAgent()
+        Saves:SaveExplorer()
+
+        Fluent:Notify({
+            Title = "Explorer & Agent Saved",
+            Content = "Saved to " .. FolderName,
+            Duration = 5
+        })
+    end
+})
+
+Window:SelectTab(1)
