@@ -10,10 +10,7 @@ local FolderName = "Dump-" .. HttpService:GenerateGUID(false)
 local SourceFolder = FolderName .. "\\Source"
 local GameSourceFolder = FolderName .. "\\GameSource"
 
-local Blacklist = {
-    -- ["Camera"] = true,
-    -- ["Terrain"] = true,
-}
+local Blacklist = {}
 
 local Allowed = {
     workspace,
@@ -106,12 +103,10 @@ function Saves:IsOwnScript(Object)
         return false
     end
 
-    -- Scripts outside Players can be dumped.
     if not Object:IsDescendantOf(Players) then
         return true
     end
 
-    -- Scripts inside Players must belong to LocalPlayer.
     return Object:IsDescendantOf(LocalPlayer)
 end
 
@@ -457,14 +452,11 @@ function Saves:BuildFilesystem(Object)
         return
     end
 
-    -- Script files from the game
-    -- are always saved into GameSource.
     if self:IsScript(Object) then
         self:SaveScript(Object)
         return
     end
 
-    -- Do not create unnecessary folders.
     if not self:HasScript(Object) then
         return
     end
@@ -581,19 +573,10 @@ end
 function Saves:Build()
     Cached.Builder = {
         Name = FolderName,
-
-        -- Agent working directory.
         Source = SourceFolder,
-
-        -- Decompiled game source.
         GameSource = GameSourceFolder,
-
-        -- Explorer tree.
         Explorer = nil,
-
-        -- Agent documentation.
         Agent = FolderName .. "\\AGENT.md",
-
         Scripts = {}
     }
 
@@ -655,7 +638,6 @@ function Saves:Build()
     return Cached.Builder
 end
 
--- Fluent UI Integration
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
@@ -750,7 +732,6 @@ Tabs.Main:AddButton({
     end
 })
 
--- Fluent UI Extra Managers
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
