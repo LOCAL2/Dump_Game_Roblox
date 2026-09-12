@@ -659,8 +659,8 @@ end
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Xynapse Game Dumper",
-    SubTitle = "by Roblox Dumper",
+    Title = "Game Dumper",
+    SubTitle = "by TNK",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 420),
     Acrylic = true,
@@ -760,8 +760,8 @@ InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
 
-InterfaceManager:SetFolder("XynapseDumper")
-SaveManager:SetFolder("XynapseDumper/configs")
+InterfaceManager:SetFolder("TNKDumper")
+SaveManager:SetFolder("TNKDumper/configs")
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
