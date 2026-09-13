@@ -69,6 +69,38 @@ Use `GameSource/` as a reference when inspecting existing game scripts.
 Do not use `GameSource/` as the Agent working directory.
 
 Do not overwrite existing GameSource files unless explicitly requested.
+
+---
+
+# Troubleshooting & Troubleshooting Rules
+
+### 🚨 Error Handling: `attempt to index nil with 'CreateWindow'` (WindUI)
+When encountering `attempt to index nil with 'CreateWindow'` in WindUI scripts:
+
+1. **Root Cause:**
+   * The `loadstring(game:HttpGet(...))()` returned `nil` because the URL was broken, rate-limited, or blocked by the HTTP provider.
+
+2. **Resolution & Protocol:**
+   * ALWAYS use the official Footagesus WindUI URL:
+     ```lua
+     local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+     ```
+   * Add a pcall fallback check to verify `WindUI` is loaded as a table before calling `:CreateWindow()`:
+     ```lua
+     if type(WindUI) ~= "table" or not WindUI.CreateWindow then
+         warn("Failed to load WindUI library!")
+         return
+     end
+     ```
+   * Ensure Slider parameters match WindUI's latest specification:
+     ```lua
+     MainTab:Slider({
+         Title = "Collect Radius",
+         Value = { Min = 10, Max = 100, Default = 35 },
+         Step = 5,
+         Callback = function(Value) ... end
+     })
+     ```
 ]]
 
 function Saves:IsAllowed(Object)
